@@ -1,16 +1,11 @@
-package Coda.App;
+package coda.app;
 
-import org.junit.jupiter.api.parallel.Resources;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.ResourceBundle;
-import java.util.function.Consumer;
 
 public class CodaApplication {
-	private List<WebPageService> services;
+	private final List<WebPageService> services;
 	private static WebServer server;
 
 	public CodaApplication() {
@@ -23,13 +18,14 @@ public class CodaApplication {
 	 * @return the blender farm service
 	 */
 	public WebPageService buildBlenderFarm() {
-		return new WebPageServiceBuilder<>()
+		return new WebPageServiceBuilder<>(){}
 				.setTitle("Blender Farm")
 				.setDescription("A simple blender farm")
 				.setVersion("0.0.1")
 				.setAuthor("Hamish Burke")
 				.setLicense("MIT")
 				.setService(BlenderFarm::renderFrame)
+				.setRender(BlenderFarm::renderFrameHTML)
 				.build();
 	}
 

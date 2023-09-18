@@ -1,4 +1,4 @@
-package Coda.App;
+package coda.app;
 
 /**
  * Simple web app interface.
@@ -49,6 +49,7 @@ public interface WebApp {
                 inner +
                 "</html>";
     }
+
 
     /**
      * Get html footer.

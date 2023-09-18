@@ -1,4 +1,4 @@
-package Coda.App;
+package coda.app;
 
 public interface WebPageService<I, O> extends WebApp, CodaService {
 
@@ -12,4 +12,6 @@ public interface WebPageService<I, O> extends WebApp, CodaService {
         return htmlWrapper(head(title()) + body(description() + "<br><br>" + inner, "container")
                 + footer(author(), license(), version(), "container"));
     }
+
+    String render();
 }

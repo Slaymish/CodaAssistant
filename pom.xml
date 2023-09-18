@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/1.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.assistant</groupId>
 	<artifactId>Coda</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>Coda</name>
-	<description>Coda the helpful assistant</description>
-	<dependencies>
+	<version>1.0.0</version>
+	<name>coda</name>
+	<description>coda the helpful assistant</description>
 
+	<dependencies>
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
@@ -18,8 +18,15 @@
 	</dependencies>
 
 	<build>
+		<resources>
+			<!-- Include resources directory -->
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
 
 		<plugins>
+			<!-- Specify the Java version -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -28,39 +35,21 @@
 					<target>15</target>
 				</configuration>
 			</plugin>
+
+			<!-- Add JAR plugin -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.2.0</version>
+				<configuration>
+					<archive>
+						<manifest>
+							<!-- Specify the entry point of your Java application -->
+							<mainClass>coda.app.CodaApplication</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
-
-	<settings>
-		<activeProfiles>
-			<activeProfile>github</activeProfile>
-		</activeProfiles>
-
-		<profiles>
-			<profile>
-				<id>github</id>
-				<repositories>
-					<repository>
-						<id>central</id>
-						<url>https://repo1.maven.org/maven2</url>
-					</repository>
-					<repository>
-						<id>github</id>
-						<url>https://maven.pkg.github.com/OWNER/REPOSITORY</url>
-						<snapshots>
-							<enabled>true</enabled>
-						</snapshots>
-					</repository>
-				</repositories>
-			</profile>
-		</profiles>
-
-		<servers>
-			<server>
-				<id>github</id>
-				<username>Slaymish</username>
-				<password>TOKEN</password>
-			</server>
-		</servers>
-	</settings>
 </project>

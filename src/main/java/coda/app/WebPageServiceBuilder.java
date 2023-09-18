@@ -1,5 +1,6 @@
-package Coda.App;
+package coda.app;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -17,8 +18,9 @@ public class WebPageServiceBuilder<I,O> {
 
     private Function<I, O> service;
 
-    public WebPageServiceBuilder() {
-    }
+    private BiFunction<String,WebPageService,String> render;
+
+    public WebPageServiceBuilder() {}
 
     public WebPageServiceBuilder setTitle(String title) {
         this.title = title;
@@ -47,6 +49,11 @@ public class WebPageServiceBuilder<I,O> {
 
     public WebPageServiceBuilder setService(Function<I, O> service) {
         this.service = service;
+        return this;
+    }
+
+    public WebPageServiceBuilder setRender(BiFunction<String,WebPageService,String> render) {
+        this.render = render;
         return this;
     }
 
@@ -80,7 +87,11 @@ public class WebPageServiceBuilder<I,O> {
              * @return
              */
             public O runService(Object input, String[] args) {
-                return service != null ? (O) service.apply((I) input) : null;
+                return service != null ? service.apply((I) input) : null;
+            }
+
+            public String render(){
+                return render != null ? render.apply("", this) : "";
             }
         };
     }

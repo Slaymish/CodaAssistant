@@ -1,4 +1,4 @@
-package Coda.App;
+package coda.app;
 
 /**
  * Simple web service interface.

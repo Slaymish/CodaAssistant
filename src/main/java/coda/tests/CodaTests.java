@@ -1,25 +1,28 @@
-package Coda.Tests;
+package coda.tests;
 
-import Coda.App.CodaApplication;
-import Coda.App.CodaService;
-import Coda.App.WebPageService;
-import Coda.App.WebPageServiceBuilder;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import coda.app.CodaApplication;
+import coda.app.CodaService;
+import coda.app.WebPageService;
+import coda.app.WebPageServiceBuilder;
 
 import java.io.File;
 import java.util.function.Consumer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.*;
+
+/**
+ * Tests for the coda application.
+ */
 public class CodaTests {
 
     @BeforeAll
-    public static void checkAsserts(){
-        try{
+    public static void checkAsserts() {
+        try {
             assert false;
-        }catch (AssertionError e){
+        } catch (AssertionError e) {
             System.out.println("Asserts are enabled.");
             return;
         }
@@ -34,28 +37,28 @@ public class CodaTests {
         blenderFarm.runService(new File("test.blend"));
 
         Object o = blenderFarm.runService(new File("test.blend"));
-        assertEquals(null, o);
+        assertNull(o);
     }
 
     @Test
-    public void testWebPageServiceCreation(){
-        WebPageServiceBuilder<Integer,Integer> builder = new WebPageServiceBuilder<>();
+    public void testWebPageServiceCreation() {
+        WebPageServiceBuilder<Integer, Integer> builder = new WebPageServiceBuilder<>();
         builder.setService((Integer i) -> i + 1);
-        WebPageService<Integer,Integer> adder = builder.build();
+        WebPageService<Integer, Integer> adder = builder.build();
         assertEquals(adder.runService(1), 2);
     }
 
     @Test
-    public void testCodaServiceCreation(){
-        WebPageServiceBuilder<Integer,Integer> builder = new WebPageServiceBuilder<>();
+    public void testCodaServiceCreation() {
+        WebPageServiceBuilder<Integer, Integer> builder = new WebPageServiceBuilder<>();
         builder.setService((Integer i) -> i + 1);
-        CodaService<Integer,Integer> adder = builder.build();
+        CodaService<Integer, Integer> adder = builder.build();
         assertEquals(adder.runService(1), 2);
     }
 
     @Test
-    public void testHTMLPageOutput(){
-        WebPageServiceBuilder<Integer,Integer> builder = new WebPageServiceBuilder<>();
+    public void testHTMLPageOutput() {
+        WebPageServiceBuilder<Integer, Integer> builder = new WebPageServiceBuilder<>();
         builder.setAuthor("test author");
         builder.setTitle("test title");
         builder.setVersion("test version");

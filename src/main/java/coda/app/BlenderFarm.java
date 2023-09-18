@@ -1,8 +1,7 @@
-package Coda.App;
+package coda.app;
 
 import java.io.File;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 public class BlenderFarm {
 
@@ -80,5 +79,23 @@ public class BlenderFarm {
         }
 
         return blendFile;
+    }
+
+    /**
+     * Render a frame of a blender file.
+     * @param inner Inner HTML
+     * @param webPageService Object containing the service
+     * @return
+     */
+    public static Object renderFrameHTML(Object inner, Object webPageService) {
+        if (!(webPageService instanceof WebPageService)) {
+            return null;
+        }
+
+        WebPageService service = (WebPageService) webPageService;
+
+        return service.getPage("""
+                <button onclick="renderFrame()">Render Frame</button>
+                """);
     }
 }
