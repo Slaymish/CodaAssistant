@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -29,7 +30,7 @@ public class CodaTests {
     public void testBlenderFarm() {
         CodaApplication app = new CodaApplication();
 
-        WebPageService<File,File> blenderFarm = app.buildBlenderFarm();
+        WebPageService<File, Consumer<File>> blenderFarm = app.buildBlenderFarm();
         blenderFarm.runService(new File("test.blend"));
 
         Object o = blenderFarm.runService(new File("test.blend"));

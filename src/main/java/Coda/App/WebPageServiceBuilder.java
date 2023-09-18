@@ -50,7 +50,6 @@ public class WebPageServiceBuilder<I,O> {
         return this;
     }
 
-
     public WebPageService<I, O> build() {
         return new WebPageService<I, O>() {
             public String title() {

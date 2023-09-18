@@ -15,6 +15,10 @@ public interface CodaService<I,O> {
     String author();
     String license();
 
+    default String endpoint(){
+        return title().toLowerCase().replace(" ", "-");
+    }
+
 
     default O runService( I input ){ return runService( input, null );}
     O runService( I input, String[] args );
