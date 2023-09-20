@@ -9,8 +9,9 @@ public interface WebPageService<I, O> extends WebApp, CodaService {
      * @return
      */
     default String getPage(String inner) {
-        return htmlWrapper(head(title()) + body(description() + "<br><br>" + inner, "container")
-                + footer(author(), license(), version(), "container"));
+        return htmlWrapper(head(title())
+                + body(description() + "<br><br>" + inner, new String[]{"modal-dialog", "modal-content"})
+                + footer(author(), license(), version(), new String[]{"container", "fixed-bottom"}));
     }
 
     String render();

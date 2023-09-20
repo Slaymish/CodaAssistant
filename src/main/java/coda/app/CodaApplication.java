@@ -1,5 +1,6 @@
 package coda.app;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +19,7 @@ public class CodaApplication {
 	 * @return the blender farm service
 	 */
 	public WebPageService buildBlenderFarm() {
-		return new WebPageServiceBuilder<>(){}
+		return new WebPageServiceBuilder<File,File>(){}
 				.setTitle("Blender Farm")
 				.setDescription("A simple blender farm")
 				.setVersion("0.0.1")
@@ -30,7 +31,7 @@ public class CodaApplication {
 	}
 
 	public WebPageService buildAdderService(){
-		return new WebPageServiceBuilder<>()
+		return new WebPageServiceBuilder<Integer,Integer>()
 				.setTitle("Adder")
 				.setDescription("A simple adder that'll add 10 to the input")
 				.setVersion("0.0.1")

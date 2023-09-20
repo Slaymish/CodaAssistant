@@ -18,7 +18,7 @@ public class WebPageServiceBuilder<I,O> {
 
     private Function<I, O> service;
 
-    private BiFunction<String,WebPageService,String> render;
+    private Function<WebPageService,String> render;
 
     public WebPageServiceBuilder() {}
 
@@ -52,7 +52,7 @@ public class WebPageServiceBuilder<I,O> {
         return this;
     }
 
-    public WebPageServiceBuilder setRender(BiFunction<String,WebPageService,String> render) {
+    public WebPageServiceBuilder setRender(Function<WebPageService,String> render) {
         this.render = render;
         return this;
     }
@@ -79,19 +79,12 @@ public class WebPageServiceBuilder<I,O> {
                 return license;
             }
 
-            /**
-             * Run the service.
-             *
-             * @param input input
-             * @param args  arguments
-             * @return
-             */
-            public O runService(Object input, String[] args) {
+            public O runService(Object input){
                 return service != null ? service.apply((I) input) : null;
             }
 
             public String render(){
-                return render != null ? render.apply("", this) : "";
+                return render != null ? render.apply(this) : "";
             }
         };
     }

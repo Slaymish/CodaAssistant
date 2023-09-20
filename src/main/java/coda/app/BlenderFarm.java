@@ -5,18 +5,7 @@ import java.util.function.Consumer;
 
 public class BlenderFarm {
 
-    private static Consumer<File> renderConsumer;
-
-    public static Consumer<File> getRenderConsumer() {
-        if (renderConsumer == null) {
-            renderConsumer = (File f) -> {
-                // Render the file
-                System.out.println("Rendered file: " + f.getAbsolutePath());
-            };
-        }
-        return renderConsumer;
-    }
-
+    private static volatile File currentRender = null;
 
     /**
      * Render a frame of a blender file.
@@ -24,7 +13,7 @@ public class BlenderFarm {
      * @param object the blender file to render
      * @return
      */
-    public static Consumer<File> renderFrame(Object object){
+    public static File renderFrame(Object object){
         try{
             File blendFile = checkFile(object);
             new Thread(() -> {
@@ -37,7 +26,8 @@ public class BlenderFarm {
                         throw new Exception("Error while rendering frame.");
                     }
 
-                    getRenderConsumer().accept(outputImage);
+                    currentRender = outputImage;
+
                 } catch (Exception e) {
                     System.out.println("Thread Error: " + e.getMessage());
                 }
@@ -46,12 +36,12 @@ public class BlenderFarm {
             System.out.println("Error: " + e.getMessage());
         }
 
-        return getRenderConsumer();
+        return null;
     }
 
     private static File createBlenderRenderProcess(File blendFile) throws InterruptedException {
         // TODO: Use processbuilder to render the frame
-        Thread.sleep(2000); // fixme: remove
+        Thread.sleep(5000); // fixme: remove
         return new File("test.png");
     }
 
@@ -83,17 +73,17 @@ public class BlenderFarm {
 
     /**
      * Render a frame of a blender file.
-     * @param inner Inner HTML
      * @param webPageService Object containing the service
      * @return
      */
-    public static Object renderFrameHTML(Object inner, Object webPageService) {
+    public static Object renderFrameHTML(Object webPageService) {
         if (!(webPageService instanceof WebPageService)) {
             return null;
         }
 
         WebPageService service = (WebPageService) webPageService;
 
+        // TODO: Add action with HTMX
         return service.getPage("""
                 <button onclick="renderFrame()">Render Frame</button>
                 """);

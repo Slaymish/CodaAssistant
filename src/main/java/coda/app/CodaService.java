@@ -19,7 +19,11 @@ public interface CodaService<I,O> {
         return title().toLowerCase().replace(" ", "-");
     }
 
-
-    default O runService( I input ){ return runService( input, null );}
-    O runService( I input, String[] args );
+    /**
+     * Run the service.
+     *
+     * @param input input
+     * @return output
+     */
+    default O runService( I input ){ return null; }
 }
