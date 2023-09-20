@@ -83,9 +83,41 @@ public class BlenderFarm {
 
         WebPageService service = (WebPageService) webPageService;
 
+        String fileUploadForm = """
+                <form action="/runService" method="post" enctype="multipart/form-data">
+                    <input type="file" name="file" accept=".blend">
+                    <input type="submit" value="Render">
+                """;
+
         // TODO: Add action with HTMX
         return service.getPage("""
-                <button onclick="renderFrame()">Render Frame</button>
+                <h1>Blender Farm</h1>
+                """ + fileUploadForm + """
+                <h2>Current render</h2>
+                <img src="/rendered-image" alt="Current render">
                 """);
+    }
+
+    /**
+     * Parse the input.
+     *
+     * @param request The request
+     * @param service The service
+     * @return
+     */
+    public static Object parseInput(Object request, Object service) {
+        if (!(request instanceof String)) {
+            return null;
+        }
+
+        String req = (String) request;
+
+        if (!req.contains("file=")) {
+            return null;
+        }
+
+        String file = req.split("file=")[1];
+
+        return new File(file);
     }
 }

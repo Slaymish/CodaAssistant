@@ -74,4 +74,6 @@ public interface WebApp {
         sb.append("</footer>\n");
         return sb.toString();
     }
+
+    Object parseInput(String request, WebPageService service);
 }

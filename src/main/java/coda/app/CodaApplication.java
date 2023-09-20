@@ -27,6 +27,7 @@ public class CodaApplication {
 				.setLicense("MIT")
 				.setService(BlenderFarm::renderFrame)
 				.setRender(BlenderFarm::renderFrameHTML)
+				.setInputParser(BlenderFarm::parseInput)
 				.build();
 	}
 

@@ -18,6 +18,7 @@ public class WebPageServiceBuilder<I,O> {
 
     private Function<I, O> service;
 
+    private BiFunction<String, WebPageService, O> inputParser;
     private Function<WebPageService,String> render;
 
     public WebPageServiceBuilder() {}
@@ -57,6 +58,11 @@ public class WebPageServiceBuilder<I,O> {
         return this;
     }
 
+    public WebPageServiceBuilder setInputParser(BiFunction<String, WebPageService, O> inputParser) {
+        this.inputParser = inputParser;
+        return this;
+    }
+
     public WebPageService<I, O> build() {
         return new WebPageService<I, O>() {
             public String title() {
@@ -81,6 +87,10 @@ public class WebPageServiceBuilder<I,O> {
 
             public O runService(Object input){
                 return service != null ? service.apply((I) input) : null;
+            }
+
+            public O parseInput(String request, WebPageService service){
+                return inputParser != null ? inputParser.apply(request, service) : null;
             }
 
             public String render(){

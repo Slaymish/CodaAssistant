@@ -2,6 +2,7 @@ package coda.app;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.ObjectStreamException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -20,6 +21,8 @@ class WebServer {
     CodaApplication app;
 
     Logger logger = Logger.getLogger(WebServer.class.getName());
+
+    private static WebPageService pageLastOn = null;
 
     private static final Charset UTF_8 = StandardCharsets.UTF_8;
 
@@ -90,6 +93,28 @@ class WebServer {
      * @param writer The output stream
      */
     private void matchRequestToService(String request, OutputStream writer) {
+        if (request.contains("/runService")) {
+            if (pageLastOn == null) {
+                send404(writer);
+                return;
+            }
+
+            try {
+                Object input = pageLastOn.parseInput(request, pageLastOn);
+
+                logger.info("Input: " + input);
+
+                Object output = pageLastOn.runService(input);
+
+                sendResult(writer, output);
+                return;
+            } catch (Exception e) {
+                logger.severe("Server error: " + e.getMessage());
+                send404(writer);
+                return;
+            }
+        }
+
         List<WebPageService> services = app.getServices();
         List<WebPageService> matchingServices = new ArrayList<>();
 
@@ -102,11 +127,28 @@ class WebServer {
 
         // Send the response
         if (matchingServices.size() == 1) {
+            pageLastOn = matchingServices.get(0);
             sendService(writer, matchingServices.get(0));
         } else if (matchingServices.size() > 1) {
             send404(writer);
         } else {
             sendAllServices(writer);
+        }
+    }
+
+    /**
+     * Send the result on running the service to the client.
+     *
+     * @param writer The output stream
+     * @param output The output of the service
+     */
+    private void sendResult(OutputStream writer, Object output) {
+        try {
+            // Send to /rendered-image
+            writer.write("POST /rendered-image HTTP/1.1\r\n\r\n".getBytes(UTF_8));
+            writer.write(output.toString().getBytes(UTF_8));
+        } catch (IOException e) {
+            logger.severe("Server error: " + e.getMessage());
         }
     }
 
