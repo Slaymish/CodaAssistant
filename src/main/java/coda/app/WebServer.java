@@ -1,16 +1,16 @@
 package coda.app;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.ObjectStreamException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.security.Principal;
+import java.util.*;
 import java.util.logging.Logger;
+import javax.servlet.*;
+import javax.servlet.http.*;
+
 
 class WebServer {
     String ip;
@@ -66,11 +66,11 @@ class WebServer {
             OutputStream writer = socket.getOutputStream();
 
             // Read the request
-            String request = readRequest(reader);
+            HttpServletRequest request = readRequest(reader);
             logger.info("Request: " + request);
 
             // Send the response
-            sendResponse(writer, request);
+            sendResponse(request, writer);
         } catch (IOException e){
             logger.severe("Server error: " + e.getMessage());
         }
@@ -82,9 +82,10 @@ class WebServer {
      * @param writer The output stream
      * @param request The request
      */
-    private void sendResponse(OutputStream writer, String request) {
+    private void sendResponse(HttpServletRequest request, OutputStream writer) {
         matchRequestToService(request, writer);
     }
+
 
     /**
      * Match the request to a service.
@@ -92,8 +93,8 @@ class WebServer {
      * @param request The request
      * @param writer The output stream
      */
-    private void matchRequestToService(String request, OutputStream writer) {
-        if (request.contains("/runService")) {
+    private void matchRequestToService(HttpServletRequest request, OutputStream writer) {
+        if (request.getRequestURI().equals("/rendered-image")) {
             if (pageLastOn == null) {
                 send404(writer);
                 return;
@@ -120,7 +121,7 @@ class WebServer {
 
         // Find matching services
         services.forEach(service -> {
-            if (request.contains(service.endpoint())) {
+            if (request.getRequestURI().equals("/" + service.endpoint())) {
                 matchingServices.add(service);
             }
         });
@@ -180,20 +181,46 @@ class WebServer {
      * @return The request
      * @throws IOException
      */
-    private String readRequest(BufferedInputStream reader) throws IOException {
-        StringBuilder request = new StringBuilder();
+    private HttpServletRequest readRequest(BufferedInputStream reader) throws IOException {
+        StringBuilder requestBuilder = new StringBuilder();
+        Map<String, String> headers = new HashMap<>();
+        String requestURI = "";
 
         // Read the request
         int c;
         while ((c = reader.read()) != -1) {
-            request.append((char) c);
-            if (request.toString().endsWith("\r\n\r\n")) {
+            requestBuilder.append((char) c);
+            if (requestBuilder.toString().endsWith("\r\n\r\n")) {
                 break;
             }
         }
 
-        return request.toString();
+        String request = requestBuilder.toString();
+        String[] lines = request.split("\r\n");
+
+        // Parse the request line
+        if (lines.length > 0) {
+            String[] requestLineTokens = lines[0].split(" ");
+            if (requestLineTokens.length > 1) {
+                requestURI = requestLineTokens[1];
+            }
+        }
+
+        // Parse headers
+        for (int i = 1; i < lines.length; i++) {
+            String line = lines[i];
+            if (line.isEmpty()) {
+                break;
+            }
+            String[] headerTokens = line.split(": ");
+            if (headerTokens.length == 2) {
+                headers.put(headerTokens[0], headerTokens[1]);
+            }
+        }
+
+        return new CustomHttpServletRequest(requestURI, headers);
     }
+
 
     private void sendAllServices(OutputStream writer) {
         List<WebPageService> services = app.getServices();
@@ -219,5 +246,367 @@ class WebServer {
     public void addServiceEndpoint(WebPageService<?,?> codaService) {
         String endpoint = codaService.endpoint();
         logger.info("Adding service endpoint: " + endpoint);
+    }
+
+    private class CustomHttpServletRequest implements HttpServletRequest {
+        private final Map<String, String> headers = new HashMap<>();
+        private final String requestURI;
+
+        public CustomHttpServletRequest(String requestURI, Map<String, String> headers) {
+            this.requestURI = requestURI;
+            this.headers.putAll(headers);
+        }
+
+        @Override
+        public String getAuthType() {
+            return null;
+        }
+
+        @Override
+        public Cookie[] getCookies() {
+            return new Cookie[0];
+        }
+
+        @Override
+        public long getDateHeader(String s) {
+            return 0;
+        }
+
+        @Override
+        public String getHeader(String s) {
+            return null;
+        }
+
+        @Override
+        public Enumeration<String> getHeaders(String s) {
+            return null;
+        }
+
+        @Override
+        public Enumeration<String> getHeaderNames() {
+            return null;
+        }
+
+        @Override
+        public int getIntHeader(String s) {
+            return 0;
+        }
+
+        @Override
+        public String getMethod() {
+            return null;
+        }
+
+        @Override
+        public String getPathInfo() {
+            return null;
+        }
+
+        @Override
+        public String getPathTranslated() {
+            return null;
+        }
+
+        @Override
+        public String getContextPath() {
+            return null;
+        }
+
+        @Override
+        public String getQueryString() {
+            return null;
+        }
+
+        @Override
+        public String getRemoteUser() {
+            return null;
+        }
+
+        @Override
+        public boolean isUserInRole(String s) {
+            return false;
+        }
+
+        @Override
+        public Principal getUserPrincipal() {
+            return null;
+        }
+
+        @Override
+        public String getRequestedSessionId() {
+            return null;
+        }
+
+        @Override
+        public String getRequestURI() {
+            return requestURI;
+        }
+
+        @Override
+        public StringBuffer getRequestURL() {
+            return null;
+        }
+
+        @Override
+        public String getServletPath() {
+            return null;
+        }
+
+        @Override
+        public HttpSession getSession(boolean b) {
+            return null;
+        }
+
+        @Override
+        public HttpSession getSession() {
+            return null;
+        }
+
+        @Override
+        public String changeSessionId() {
+            return null;
+        }
+
+        @Override
+        public boolean isRequestedSessionIdValid() {
+            return false;
+        }
+
+        @Override
+        public boolean isRequestedSessionIdFromCookie() {
+            return false;
+        }
+
+        @Override
+        public boolean isRequestedSessionIdFromURL() {
+            return false;
+        }
+
+        /**
+         * @deprecated
+         */
+        @Override
+        public boolean isRequestedSessionIdFromUrl() {
+            return false;
+        }
+
+        @Override
+        public boolean authenticate(HttpServletResponse httpServletResponse) throws IOException, ServletException {
+            return false;
+        }
+
+        @Override
+        public void login(String s, String s1) throws ServletException {
+
+        }
+
+        @Override
+        public void logout() throws ServletException {
+
+        }
+
+        @Override
+        public Collection<Part> getParts() throws IOException, ServletException {
+            return null;
+        }
+
+        @Override
+        public Part getPart(String s) throws IOException, ServletException {
+            return null;
+        }
+
+        @Override
+        public <T extends HttpUpgradeHandler> T upgrade(Class<T> aClass) throws IOException, ServletException {
+            return null;
+        }
+
+        @Override
+        public Object getAttribute(String s) {
+            return null;
+        }
+
+        @Override
+        public Enumeration<String> getAttributeNames() {
+            return null;
+        }
+
+        @Override
+        public String getCharacterEncoding() {
+            return null;
+        }
+
+        @Override
+        public void setCharacterEncoding(String s) throws UnsupportedEncodingException {
+
+        }
+
+        @Override
+        public int getContentLength() {
+            return 0;
+        }
+
+        @Override
+        public long getContentLengthLong() {
+            return 0;
+        }
+
+        @Override
+        public String getContentType() {
+            return null;
+        }
+
+        @Override
+        public ServletInputStream getInputStream() throws IOException {
+            return null;
+        }
+
+        @Override
+        public String getParameter(String s) {
+            return null;
+        }
+
+        @Override
+        public Enumeration<String> getParameterNames() {
+            return null;
+        }
+
+        @Override
+        public String[] getParameterValues(String s) {
+            return new String[0];
+        }
+
+        @Override
+        public Map<String, String[]> getParameterMap() {
+            return null;
+        }
+
+        @Override
+        public String getProtocol() {
+            return null;
+        }
+
+        @Override
+        public String getScheme() {
+            return null;
+        }
+
+        @Override
+        public String getServerName() {
+            return null;
+        }
+
+        @Override
+        public int getServerPort() {
+            return 0;
+        }
+
+        @Override
+        public BufferedReader getReader() throws IOException {
+            return null;
+        }
+
+        @Override
+        public String getRemoteAddr() {
+            return null;
+        }
+
+        @Override
+        public String getRemoteHost() {
+            return null;
+        }
+
+        @Override
+        public void setAttribute(String s, Object o) {
+
+        }
+
+        @Override
+        public void removeAttribute(String s) {
+
+        }
+
+        @Override
+        public Locale getLocale() {
+            return null;
+        }
+
+        @Override
+        public Enumeration<Locale> getLocales() {
+            return null;
+        }
+
+        @Override
+        public boolean isSecure() {
+            return false;
+        }
+
+        @Override
+        public RequestDispatcher getRequestDispatcher(String s) {
+            return null;
+        }
+
+        /**
+         * @param s
+         * @deprecated
+         */
+        @Override
+        public String getRealPath(String s) {
+            return null;
+        }
+
+        @Override
+        public int getRemotePort() {
+            return 0;
+        }
+
+        @Override
+        public String getLocalName() {
+            return null;
+        }
+
+        @Override
+        public String getLocalAddr() {
+            return null;
+        }
+
+        @Override
+        public int getLocalPort() {
+            return 0;
+        }
+
+        @Override
+        public ServletContext getServletContext() {
+            return null;
+        }
+
+        @Override
+        public AsyncContext startAsync() throws IllegalStateException {
+            return null;
+        }
+
+        @Override
+        public AsyncContext startAsync(ServletRequest servletRequest, ServletResponse servletResponse) throws IllegalStateException {
+            return null;
+        }
+
+        @Override
+        public boolean isAsyncStarted() {
+            return false;
+        }
+
+        @Override
+        public boolean isAsyncSupported() {
+            return false;
+        }
+
+        @Override
+        public AsyncContext getAsyncContext() {
+            return null;
+        }
+
+        @Override
+        public DispatcherType getDispatcherType() {
+            return null;
+        }
     }
 }

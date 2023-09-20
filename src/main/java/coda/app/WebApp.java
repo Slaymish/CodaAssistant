@@ -1,5 +1,7 @@
 package coda.app;
 
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Simple web app interface.
  * Contains a head, body and footer.
@@ -75,5 +77,5 @@ public interface WebApp {
         return sb.toString();
     }
 
-    Object parseInput(String request, WebPageService service);
+    Object parseInput(HttpServletRequest request, WebPageService service);
 }

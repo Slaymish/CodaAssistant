@@ -1,6 +1,12 @@
 package coda.app;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+
 import java.io.File;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import java.util.function.Consumer;
 
 public class BlenderFarm {
@@ -106,18 +112,30 @@ public class BlenderFarm {
      * @return
      */
     public static Object parseInput(Object request, Object service) {
-        if (!(request instanceof String)) {
+        if (!(request instanceof HttpServletRequest)) {
             return null;
         }
 
-        String req = (String) request;
+        HttpServletRequest httpRequest = (HttpServletRequest) request;
+        DiskFileItemFactory factory = new DiskFileItemFactory();
+        ServletFileUpload upload = new ServletFileUpload(factory);
 
-        if (!req.contains("file=")) {
-            return null;
+        try {
+            List<FileItem> items = upload.parseRequest(httpRequest);
+            for (FileItem item : items) {
+                if (!item.isFormField()) {
+                    String fileName = item.getName();
+                    if (fileName.endsWith(".blend")) {
+                        File uploadedFile = new File(fileName);
+                        item.write(uploadedFile);
+                        return uploadedFile;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Handle exceptions here
+            System.out.println("Error: " + e.getMessage());
         }
-
-        String file = req.split("file=")[1];
-
-        return new File(file);
+        return null;
     }
 }

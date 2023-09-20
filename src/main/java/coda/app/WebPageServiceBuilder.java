@@ -1,5 +1,7 @@
 package coda.app;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
@@ -18,7 +20,7 @@ public class WebPageServiceBuilder<I,O> {
 
     private Function<I, O> service;
 
-    private BiFunction<String, WebPageService, O> inputParser;
+    private BiFunction<HttpServletRequest, WebPageService, O> inputParser;
     private Function<WebPageService,String> render;
 
     public WebPageServiceBuilder() {}
@@ -58,7 +60,7 @@ public class WebPageServiceBuilder<I,O> {
         return this;
     }
 
-    public WebPageServiceBuilder setInputParser(BiFunction<String, WebPageService, O> inputParser) {
+    public WebPageServiceBuilder setInputParser(BiFunction<HttpServletRequest, WebPageService, O> inputParser) {
         this.inputParser = inputParser;
         return this;
     }
@@ -89,7 +91,7 @@ public class WebPageServiceBuilder<I,O> {
                 return service != null ? service.apply((I) input) : null;
             }
 
-            public O parseInput(String request, WebPageService service){
+            public O parseInput(HttpServletRequest request, WebPageService service){
                 return inputParser != null ? inputParser.apply(request, service) : null;
             }
 
